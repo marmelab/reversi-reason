@@ -5,6 +5,7 @@
   ],
   "bs-dependencies": [
     "reason-react",
+    "bs-enzyme",
     "bs-jest"
   ],
   "reason": {

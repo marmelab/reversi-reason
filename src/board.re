@@ -72,7 +72,11 @@ let flippedCellsInDirection = (board, cell, (dirx, diry)) => {
 let getFlippedCells = (board, cell) => 
     directions
         |> List.map(flippedCellsInDirection(board, cell))
-        |> List.flatten;
+        |> List.flatten
+        |> List.sort_uniq((c1, c2) => {
+            /* cells are equals => pos = 0 (remove dup) */
+            c1.x == c2.x && c1.y == c2.y ? 0 : 1
+        });
 
 let availableCellChanges = (board, color) => Array.(
     init(board.height, y => init(board.width, x => { x, y, color }))
@@ -99,24 +103,31 @@ let applyCellChange = (board, cell) => {
 
 let component = statelessComponent("Board");
 
-let make = (~board, ~onCellClick, _children) => {
-  ...component,
-  render: (_self) => 
-    <div className="board">
-        (arrayToElement(Array.(
-            mapi((y, row) => {
-                <div key=string_of_int(y) className="row">
-                    (arrayToElement(
-                        mapi((x, color) =>
-                            <Cell
-                                color
-                                key=string_of_int(x)
-                                onClick={(_) => onCellClick(x, y)}
-                            />,
-                        row)
-                    ))
-                </div>
-            }, board.cells)
-        )))
-    </div>
+let make = (~board, ~onCellClick=?, _children) => {
+    let handleClick = (x, y) => switch(onCellClick) {
+    | None => ()
+    | Some(callback) => callback(x, y)
+    };
+
+    {
+    ...component,
+    render: (_self) => 
+        <div className="board">
+            (arrayToElement(Array.(
+                mapi((y, row) => {
+                    <div key=string_of_int(y) className="row">
+                        (arrayToElement(
+                            mapi((x, color) =>
+                                <Cell
+                                    color
+                                    key=string_of_int(x)
+                                    onClick={(_) => handleClick(x, y)}
+                                />,
+                            row)
+                        ))
+                    </div>
+                }, board.cells)
+            )))
+        </div>
+    }
 };

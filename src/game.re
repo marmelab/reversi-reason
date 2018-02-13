@@ -12,9 +12,18 @@ exception InsolubleGame(game);
 
 let currentPlayer = game => game.players[game.playerIndex];
 
+let init = players => {
+    board: Board.init(8, 8),
+    players,
+    playerIndex: 0,
+    finished: false
+};
+
 let playerCanPlay = (game, playerIndex) => {
-    let color = Some(currentPlayer(game).color);
-    Array.length(Board.availableCellChanges(game.board, color)) > 0
+    let color = game.players[playerIndex].color;
+
+    Board.availableCellChanges(game.board, Some(color))
+        |> Array.length > 0
 };
 
 let switchPlayer = game => {
@@ -33,12 +42,14 @@ let switchPlayer = game => {
 let applyCellClick = (game, x, y) => Board.({
     let color = Some(currentPlayer(game).color);
     let board = applyCellChange(game.board, { x, y, color });
-    
+
     switch(getCountForColor(board, None)) {
     | 0 => { ...game, finished: true }
     | _ => switchPlayer({ ...game, board })
     }
 });
+
+let locationReload = (_) => [%bs.raw {| window.location.reload() |}];
 
 type action = Click(int, int) | Restart;
 
@@ -63,9 +74,7 @@ let reducer = (action, state) => switch (action) {
             message: Some("Opponent can't play, play again!")
         })
     }
-    | Restart => SideEffects((_) => {
-        [%bs.raw {| window.location.reload() |}]
-    })
+    | Restart => SideEffects(locationReload)
 };
 
 let component = reducerComponent("Game");
@@ -93,6 +102,7 @@ let make = (~game, _children) => {
                 Array.mapi((i, player) => (
                     <Player
                         player
+                        key=string_of_int(i)
                         current=(game.playerIndex == i)
                     />
                 ), game.players)
