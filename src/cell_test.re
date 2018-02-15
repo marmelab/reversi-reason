@@ -17,8 +17,8 @@ describe("<Cell />", () => {
             expect(wrapper |> find(expectedClass) |> length) |> toBe(1);
         };
 
-        test(Some(Cell.Black), ".disk.black");
-        test(Some(Cell.White), ".disk.white");
-        test(None, ".disk");
+        test(Some(Cell.Black), ".cell.black");
+        test(Some(Cell.White), ".cell.white");
+        test(None, ".cell");
     });
 });

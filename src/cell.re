@@ -17,8 +17,6 @@ let make = (~color, ~onClick, _children) => {
             | _ => ""
         };
 
-        <div className="cell">
-            <div className=("disk " ++ identifier) onClick />
-        </div>
+        <div className=("cell "++ identifier) onClick />
     }
 };
