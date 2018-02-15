@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  box-model: border-box;
 }
 
 .root {
@@ -20,6 +21,8 @@ body {
   background: #C4EDB4;
   border-radius: 3px;
   padding: 10px;
+  border-collapse: separate;
+  border-spacing: 5px;
 }
 
 .row {
@@ -28,22 +31,18 @@ body {
 
 .cell {
   display: table-cell;
+  box-shadow: inset 0px 0px 1px 0px rgba(0,0,0,0.5);
+  border-radius: 100%;
+  margin: 3px;
   padding: 3px;
 }
 
-.disk {
-  border-radius: 100%;
-  display: block;
-  height: 100%;
-  box-shadow: inset 0px 0px 1px 0px rgba(0,0,0,0.5);
-}
-
-.disk.white{
+.cell.white{
   background: #fff;
   box-shadow: none;
 }
 
-.disk.black{
+.cell.black{
   background: #000;
   box-shadow: none;
 }
