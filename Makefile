@@ -1,6 +1,13 @@
-.PHONY: help install build start test
+.PHONY: help install build start test deploy-demo
+
+USER_ID = $(shell id -u)
+GROUP_ID = $(shell id -g)
+
+export UID = $(USER_ID)
+export GID = $(GROUP_ID)
 
 BIN = docker run -i -t --rm \
+	--user "${UID}:${GID}" \
 	-v "${PWD}:/app" \
 	-p "3000:3000" \
 	reversi-reason
@@ -20,3 +27,12 @@ start: ## Start project
 
 test: ## Test Project
 	$(BIN) yarn test
+
+deploy-demo: build ## Deploy the demo at http://marmelab.com/reversi-reason/
+	cd build && \
+	git init && \
+	git add . && \
+	git commit -m "Update demo" && \
+	git remote add origin git@github.com:marmelab/reversi-reason.git && \
+	git push --force origin master:gh-pages
+	rm -Rf build
