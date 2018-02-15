@@ -1,6 +1,6 @@
 # Reversi Reason
 
-Reversi Reason is a reversi game into the browser.
+Reversi Reason is a reversi game into the browser ([demo](https://marmelab.com/reversi-reason/)).
 It has been build with Reason Language for learning and fun essentially.
 
 ![reversi-reason](https://github.com/marmelab/reversi-reason/blob/master/reversi-reason.gif)

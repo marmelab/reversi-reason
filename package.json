@@ -2,6 +2,7 @@
   "name": "src",
   "version": "0.1.0",
   "private": true,
+  "homepage" : "https://marmelab.com/reversi-reason/",
   "dependencies": {
     "bs-enzyme": "^0.3.1",
     "enzyme-adapter-react-16": "^1.1.1",
