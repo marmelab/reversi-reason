@@ -2,38 +2,98 @@ open Jest;
 open Enzyme;
 open Expect;
 
-let [w, b, n] = [Some(Cell.White), Some(Cell.Black), None];
+let matrixToCells = matrix => Array.(
+    mapi((y, row) => mapi((x, color) => (Cell.{ x, y, color }), row), matrix)
+        |> fold_left(append, [||])
+        |> to_list
+        |> Board.sortCells
+);
+
+let (w, b, n) = (Some(Cell.White), Some(Cell.Black), None);
 
 configureEnzyme(react_16_adapter());
 
 describe("Board", () => {
+    describe("initCells", () => {
+        test("it should init a list of cells", () => {
+            expect(Board.initCells(2, 2, None)) |> toEqual([
+                Cell.({ x: 0, y: 0, color: None }),
+                Cell.({ x: 1, y: 0, color: None }),
+                Cell.({ x: 0, y: 1, color: None }),
+                Cell.({ x: 1, y: 1, color: None }),
+            ])
+        });
+    });
+
+    describe("sortCells", () => {
+        test("should sort cell by x/y coords", () => {
+            expect(Board.sortCells([
+                Cell.({ x: 1, y: 0, color: None }),
+                Cell.({ x: 1, y: 3, color: None }),
+                Cell.({ x: 2, y: 0, color: None }),
+                Cell.({ x: 1, y: 2, color: None }),
+                Cell.({ x: 1, y: 1, color: None }),
+                Cell.({ x: 2, y: 2, color: None }),
+            ])) |> toEqual([
+                Cell.({ x: 1, y: 0, color: None }),
+                Cell.({ x: 2, y: 0, color: None }),
+                Cell.({ x: 1, y: 1, color: None }),
+                Cell.({ x: 1, y: 2, color: None }),
+                Cell.({ x: 2, y: 2, color: None }),
+                Cell.({ x: 1, y: 3, color: None }),
+            ])
+        });
+    });
+
+    describe("getCell", () => {
+        test("it should return cell color if exist", () => {
+            expect(Board.getCell(1, 3, [
+                Cell.({ x: 1, y: 0, color: None }),
+                Cell.({ x: 2, y: 0, color: None }),
+                Cell.({ x: 1, y: 1, color: None }),
+                Cell.({ x: 1, y: 2, color: None }),
+                Cell.({ x: 2, y: 2, color: None }),
+                Cell.({ x: 1, y: 3, color: Some(Cell.White) }),
+            ])) |> toEqual(Some(Cell.White));
+        });
+
+        test("it should return None if cell does not exist", () => {
+            expect(Board.getCell(1, 4, [
+                Cell.({ x: 1, y: 0, color: None }),
+                Cell.({ x: 1, y: 2, color: None }),
+                Cell.({ x: 2, y: 2, color: None }),
+                Cell.({ x: 1, y: 3, color: Some(Cell.White) }),
+            ])) |> toEqual(None);
+        });
+    });
+
     describe("init", () => {
         test("should return a new board", () => {
             expect(Board.init(4, 4)) |> toEqual(Board.({
                 width: 4,
                 height: 4,
-                cells: [|
+                cells: matrixToCells([|
                     [|n, n, n, n|],
                     [|n, b, w, n|],
                     [|n, w, b, n|],
                     [|n, n, n, n|],
-                |]
+                |])
             }))
         });
     });
 
     describe("drawCells", () => {
         test("should return a new board with new cells", () => {
-            expect(Board.drawCells([|
+            expect(Board.drawCells(matrixToCells([|
                 [|n, n|],
                 [|n, n|],
-            |], [
+            |]), [
                 { x: 0, y: 0, color: Some(Cell.Black) },
                 { x: 1, y: 1, color: Some(Cell.White) },
-            ])) |> toEqual([|
+            ])) |> toEqual(matrixToCells([|
                 [|b, n|],
                 [|n, w|],
-            |])
+            |]))
         });
     });
 
@@ -43,21 +103,6 @@ describe("Board", () => {
             expect(getCountForColor(init(4, 4), Some(Cell.White))) |> toBe(2);
             expect(getCountForColor(init(4, 4), None)) |> toBe(12);
         }));
-    });
-
-    describe("directions", () => {
-        test("should be a valid representation of directions", () => {
-            expect(Board.directions) |> toEqual([
-                (0, 1),
-                (0, -1),
-                (1, 0),
-                (1, 1),
-                (1, -1),
-                (-1, 0),
-                (-1, 1),
-                (-1, -1),
-            ]);
-        });
     });
 
     describe("isOutOfBound", () => {
@@ -106,7 +151,6 @@ describe("Board", () => {
             
             expect(Board.flippedCellsInDirection(baseBoard, cellChange, (0, 1)))
                 |> toEqual([
-                    Cell.({ x: 1, y: 0, color: Some(Cell.White) }),
                     Cell.({ x: 1, y: 1, color: Some(Cell.White) }),
                 ]) 
         });
@@ -116,14 +160,14 @@ describe("Board", () => {
         let fakeBoard = Board.{
             width: 6,
             height: 6,
-            cells: [|
+            cells: matrixToCells([|
                 [|n, n, n, n, n, n|],
                 [|n, b, n, n, n, n|],
                 [|n, w, w, w, n, n|],
                 [|n, n, w, b, n, n|],
                 [|n, n, n, n, n, n|],
                 [|n, n, n, n, n, n|]
-            |]
+            |])
         };
 
         test("should return flipped cells from cell change in all directions", () => {
@@ -131,23 +175,23 @@ describe("Board", () => {
             
             expect(Board.getFlippedCells(fakeBoard, cellChange))
                 |> toEqual([
-                    Cell.({ x: 2, y: 3, color: Some(Cell.Black) }),
-                    Cell.({ x: 1, y: 2, color: Some(Cell.Black) }),
                     Cell.({ x: 1, y: 3, color: Some(Cell.Black) }),
+                    Cell.({ x: 1, y: 2, color: Some(Cell.Black) }),
+                    Cell.({ x: 2, y: 3, color: Some(Cell.Black) }),
                 ]) 
         });
     });
 
     describe("availableCellChanges", () => {
-        test("should return all available cell changes for a color", () => Cell.({
+        test("should return all available cell changes for a color", () => {
             expect(Board.availableCellChanges(Board.init(4, 4), Some(Black)))
-                |> toEqual([|
-                    { x: 2, y: 0, color: Some(Black) },
-                    { x: 3, y: 1, color: Some(Black) },
-                    { x: 0, y: 2, color: Some(Black) },
-                    { x: 1, y: 3, color: Some(Black) },
-                |])
-        }));
+                |> toEqual([
+                    Cell.({ x: 2, y: 0, color: Some(Black) }),
+                    Cell.({ x: 3, y: 1, color: Some(Black) }),
+                    Cell.({ x: 0, y: 2, color: Some(Black) }),
+                    Cell.({ x: 1, y: 3, color: Some(Black) }),
+                ])
+        });
     });
 
     describe("applyCellChange", () => {
@@ -168,12 +212,12 @@ describe("Board", () => {
                 |> toEqual(Board.({
                     width: 4,
                     height: 4,
-                    cells: [|
+                    cells: matrixToCells([|
                         [|n, w, n, n|],
                         [|n, w, w, n|],
                         [|n, w, b, n|],
                         [|n, n, n, n|],
-                    |],
+                    |]),
                 }))
         }));
     });
@@ -181,7 +225,7 @@ describe("Board", () => {
     describe("<Board />", () => {
         test("should render a grid of <Cell />", () => {
             let board = Board.init(4, 4);
-            let wrapper = shallow(<Board board />);
+            let wrapper = shallow(<Board board onCellClick={(_) => ()} />);
 
             expect(wrapper |> find("Cell") |> length) |> toBe(16);
         });
