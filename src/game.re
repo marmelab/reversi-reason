@@ -20,23 +20,24 @@ let init = players => {
 };
 
 let playerCanPlay = (game, playerIndex) => {
-    let color = game.players[playerIndex].color;
+    let color = Some(game.players[playerIndex].color);
 
-    Board.availableCellChanges(game.board, Some(color))
-        |> Array.length > 0
+    switch (Board.availableCellChanges(game.board, color)) {
+        | [] => false
+        | _ => true
+    };
 };
 
 let switchPlayer = game => {
-    let { playerIndex } = game;
-    let nextPlayerIndex = playerIndex == 1 ? 0 : 1;
+    let nextPlayerIndex = game.playerIndex == 1 ? 0 : 1;
 
     switch (playerCanPlay(game, nextPlayerIndex)) {
-    | true => { ...game, playerIndex: nextPlayerIndex }
-    | false => switch(playerCanPlay(game, playerIndex)) {
-        | true => raise(CantSwitchPlayer(game))
-        | false => raise(InsolubleGame({ ...game, finished: true }))
-    }
-    }
+        | true => { ...game, playerIndex: nextPlayerIndex }
+        | false => switch(playerCanPlay(game, game.playerIndex)) {
+            | true => raise(CantSwitchPlayer(game))
+            | false => raise(InsolubleGame({ ...game, finished: true }))
+        }
+    };
 };
 
 let applyCellClick = (game, x, y) => Board.({
@@ -44,9 +45,9 @@ let applyCellClick = (game, x, y) => Board.({
     let board = applyCellChange(game.board, { x, y, color });
 
     switch(getCountForColor(board, None)) {
-    | 0 => { ...game, finished: true }
-    | _ => switchPlayer({ ...game, board })
-    }
+        | 0 => { ...game, finished: true }
+        | _ => switchPlayer({ ...game, board })
+    };
 });
 
 let locationReload = (_) => [%bs.raw {| window.location.reload() |}];
@@ -77,7 +78,7 @@ let reducer = (action, state) => switch (action) {
     | Restart => SideEffects(locationReload)
 };
 
-let component = reducerComponent("Game");
+let component = ReasonReact.reducerComponent("Game");
 
 let make = (~game, _children) => {
   ...component,
@@ -95,7 +96,7 @@ let make = (~game, _children) => {
         (messageElement)
         <Board
             board=game.board
-            onCellClick={(x, y) => self.send(Click(x, y))}
+            onCellClick={({ x, y }) => self.send(Click(x, y))}
         />
         <div className="players">
             (arrayToElement(

@@ -17,24 +17,20 @@ body {
 .board {
   width: 400px;
   height: 400px;
-  display: table;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   background: #C4EDB4;
   border-radius: 3px;
   padding: 10px;
-  border-collapse: separate;
-  border-spacing: 5px;
-}
-
-.row {
-  display: table-row;
 }
 
 .cell {
-  display: table-cell;
+  flex: 1;
   box-shadow: inset 0px 0px 1px 0px rgba(0,0,0,0.5);
   border-radius: 100%;
-  margin: 3px;
-  padding: 3px;
+  height: 90%;
+  width: 90%;
 }
 
 .cell.white{

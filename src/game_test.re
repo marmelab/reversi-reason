@@ -2,9 +2,16 @@ open Jest;
 open Enzyme;
 open Expect;
 
-let [w, b, n] = [Some(Cell.White), Some(Cell.Black), None];
-
 configureEnzyme(react_16_adapter());
+
+let matrixToCells = matrix => Array.(
+    mapi((y, row) => mapi((x, color) => (Cell.{ x, y, color }), row), matrix)
+        |> fold_left(append, [||])
+        |> to_list
+        |> Board.sortCells
+);
+
+let (w, b, n) = (Some(Cell.White), Some(Cell.Black), None);
 
 let fakeGame = Game.init([|
     { name: "foo", color: Cell.Black },
@@ -44,12 +51,12 @@ describe("Game", () => {
         test("should raise CantSwitchPlayer if player can't be switched", () => {
             let gameWithoutMove = {
                 ...fakeGame,
-                board: { width: 4, height: 4, cells: [|
+                board: { width: 4, height: 4, cells: matrixToCells([|
                     [|b, w, n, n|],
                     [|n, w, n, n|],
                     [|n, n, n, n|],
                     [|n, n, n, n|]
-                |] }
+                |]) }
             };
 
             expect(() => Game.switchPlayer(gameWithoutMove))
@@ -74,11 +81,11 @@ describe("Game", () => {
         test("should return finished game if last cell change", () => {
             let game = {
                 ...fakeGame,
-                board: { ...Board.init(3, 3), cells: [|
+                board: { ...Board.init(3, 3), cells: matrixToCells([|
                     [|w, w, w|],
                     [|n, w, b|],
                     [|w, w, w|]
-                |]}
+                |]) }
             };
 
             expect(Game.applyCellClick(game, 0, 1)) |> toEqual({
@@ -90,12 +97,12 @@ describe("Game", () => {
         test("should return game with switched player instead", () => {
             let game = {
                 ...fakeGame,
-                board: { ...Board.init(4, 4), cells: [|
+                board: { ...Board.init(4, 4), cells: matrixToCells([|
                     [|n, n, n, n|],
                     [|n, b, w, n|],
                     [|n, w, b, n|],
                     [|n, n, n, n|]
-                |]}
+                |]) }
             };
 
             expect(Game.applyCellClick(game, 1, 3).playerIndex) |> toEqual(1)
@@ -132,12 +139,12 @@ describe("Game", () => {
                 
                 let game = {
                     ...fakeGame,
-                    board:  { ...board, cells: [|
+                    board:  { ...board, cells: matrixToCells([|
                         [|n, n, n, n|],
                         [|n, b, w, n|],
                         [|n, b, b, n|],
                         [|n, n, n, n|],
-                    |] }
+                    |]) }
                 };
 
                 expect(reducer(Click(2, 0), { game, message: None }))
@@ -145,12 +152,12 @@ describe("Game", () => {
                         game: {
                             ...game,
                             finished: true,
-                            board: { ...board, cells: [|
+                            board: { ...board, cells: matrixToCells([|
                                 [|n, n, b, n|],
                                 [|n, b, b, n|],
                                 [|n, b, b, n|],
                                 [|n, n, n, n|],
-                            |] }
+                            |]) }
                         },
                         message: Some("No One Can Play")
                     }))
@@ -161,24 +168,24 @@ describe("Game", () => {
                 
                 let game = {
                     ...fakeGame,
-                    board:  { ...board, cells: [|
+                    board:  { ...board, cells: matrixToCells([|
                         [|b, w, n, n|],
                         [|n, w, n, n|],
                         [|n, n, n, n|],
                         [|n, n, n, n|],
-                    |] }
+                    |]) }
                 };
 
                 expect(reducer(Click(2, 0), { game, message: None }))
                     |> toEqual(ReasonReact.Update({
                         game: {
                             ...game,
-                            board: { ...board, cells: [|
+                            board: { ...board, cells: matrixToCells([|
                                 [|b, b, b, n|],
                                 [|n, w, n, n|],
                                 [|n, n, n, n|],
                                 [|n, n, n, n|],
-                            |] }
+                            |]) }
                         },
                         message: Some("Opponent can't play, play again!")
                     })) 

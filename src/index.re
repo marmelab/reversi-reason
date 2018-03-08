@@ -1,11 +1,9 @@
 [%bs.raw {|require('./index.css')|}];
 
-open Player;
-
-let blackPlayer = { name: "White Player", color: White };
-let whitePlayer = { name: "Black Player", color: Black };
-
-let game = Game.init([|blackPlayer, whitePlayer|]);
+let game = Game.init([|
+    Player.{ name: "White Player", color: White },
+    Player.{ name: "Black Player", color: Black }
+|]);
 
 ReactDOMRe.renderToElementWithId(<App game />, "root");
 

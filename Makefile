@@ -28,6 +28,9 @@ start: ## Start project
 test: ## Test Project
 	$(BIN) yarn test
 
+connect: ## Connect to the container
+	$(BIN) /bin/bash
+
 deploy-demo: build ## Deploy the demo at http://marmelab.com/reversi-reason/
 	cd build && \
 	git init && \

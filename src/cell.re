@@ -14,9 +14,9 @@ let make = (~color, ~onClick, _children) => {
         let identifier = switch (color) {
             | Some(Black) => "black"
             | Some(White) => "white"
-            | _ => ""
+            | None => ""
         };
 
-        <div className=("cell "++ identifier) onClick />
+        <div className=("cell " ++ identifier) onClick />
     }
 };
