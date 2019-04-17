@@ -1,3 +1,13 @@
+<table>
+        <tr>
+            <td><img width="60" src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/book.svg" alt="publication" /></td>
+            <td><strong>Archived Repository</strong><br />
+            The code of this repository was written to illustrate the blog post <a href="https://marmelab.com/blog/2018/04/09/enjoy-painless-typing-with-reason.html">Enjoy Painless Typing With ReasonML!</a><br />
+        <strong>This code is not intended to be used in production, and is not maintained.</strong>
+        </td>
+        </tr>
+</table>
+
 # Reversi Reason
 
 Reversi Reason is a reversi game into the browser ([demo](https://marmelab.com/reversi-reason/)).
